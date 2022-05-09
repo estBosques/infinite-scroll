@@ -1,7 +1,5 @@
 "use strict";
 
-import env from "./config.json" assert { type: "json" };
-
 const imageContainer = document.getElementById("image-container");
 const loader = document.getElementById("loader");
 const searchBtn = document.getElementById("search-btn");
