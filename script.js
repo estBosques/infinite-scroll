@@ -1,24 +1,35 @@
+"use strict";
+
+import env from "./config.json" assert { type: "json" };
+
 const imageContainer = document.getElementById("image-container");
 const loader = document.getElementById("loader");
+const searchBtn = document.getElementById("search-btn");
+const searchInput = document.getElementById("search-input");
+const statisticsContainer = document.getElementById("statistics-container");
+const statisticText = document.getElementById("statistics-text");
+const closeStatisticsBtn = document.getElementById("close-statistics");
 
 let photosArray = [];
 let ready = false;
 let imagesLoaded = 0;
+let query = "forest";
+let totalPictures = 0;
 
 // Unsplash API
 // TODO: move this to .env file
-// const apiKey = "nhv9fi7yTcTFSd5qEuYrB2MH6TgfBmv-QWGMRih8xeM";
-const apiKey = config.API_KEY;
-const images_per_page = 10;
-// const apiUrl = `https://api.unsplash.com/photos/random/?client_id=${apiKey}&count=${count}`;
-let apiUrl = `https://api.pexels.com/v1/search?query=forest&per_page=${images_per_page}`;
+const apiKey = env.API_KEY;
+const imagesPerPage = 10;
+let apiUrl = `https://api.pexels.com/v1/search?query=${query}&per_page=${imagesPerPage}`;
 
 // Check if all images were loaded
 function imageLoaded() {
   imagesLoaded++;
-  if (imagesLoaded === images_per_page) {
+  totalPictures++;
+  if (imagesLoaded === imagesPerPage) {
     ready = true;
     loader.hidden = true;
+    updateStatistics();
   }
 }
 
@@ -62,8 +73,12 @@ function displayPhotos() {
 // Get photos from unsplash api
 async function getPhotos() {
   try {
-    const reponse = await fetch(apiUrl);
-    data = await reponse.json();
+    const response = await fetch(apiUrl, {
+      headers: new Headers({
+        Authorization: apiKey,
+      }),
+    });
+    const data = await response.json();
 
     photosArray = data.photos;
     apiUrl = data.next_page;
@@ -72,6 +87,26 @@ async function getPhotos() {
   } catch (error) {
     console.log(error);
   }
+}
+
+function updateSearchCriteria() {
+  query = searchInput.value.trim();
+
+  if (query !== "") {
+    ready = false;
+    totalPictures = 0;
+
+    apiUrl = `https://api.pexels.com/v1/search?query=${query}&per_page=${imagesPerPage}`;
+
+    imageContainer.innerHTML = "";
+    loader.hidden = false;
+    getPhotos();
+  }
+}
+
+function updateStatistics() {
+  let statistics = `Total images loaded: ${totalPictures}<br/>Images loaded per page: ${imagesPerPage}<br/>Search criteria: ${query}<br/>`;
+  statisticText.innerHTML = statistics;
 }
 
 // Check to see if scrolling near botton of page, Load More Photos
@@ -83,6 +118,19 @@ window.addEventListener("scroll", () => {
     ready = false;
     getPhotos();
   }
+});
+
+// Fetch new images with provided query
+searchBtn.addEventListener("click", updateSearchCriteria);
+searchInput.addEventListener("keypress", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    updateSearchCriteria();
+  }
+});
+
+closeStatisticsBtn.addEventListener("click", () => {
+  statisticsContainer.hidden = true;
 });
 
 // On load
