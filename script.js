@@ -16,7 +16,7 @@ let totalPictures = 0;
 
 // Unsplash API
 // TODO: move this to .env file
-const apiKey = env.API_KEY;
+// const apiKey = env.API_KEY;
 const imagesPerPage = 10;
 let apiUrl = `https://api.pexels.com/v1/search?query=${query}&per_page=${imagesPerPage}`;
 
