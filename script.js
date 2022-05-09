@@ -73,11 +73,7 @@ function displayPhotos() {
 // Get photos from unsplash api
 async function getPhotos() {
   try {
-    const response = await fetch(apiUrl, {
-      headers: new Headers({
-        Authorization: apiKey,
-      }),
-    });
+    const response = await fetch(apiUrl);
     const data = await response.json();
 
     photosArray = data.photos;
